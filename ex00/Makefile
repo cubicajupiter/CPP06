@@ -6,27 +6,27 @@
 #    By: jvalkama <jvalkama@student.hive.fi>        +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/11/18 12:06:00 by jvalkama          #+#    #+#              #
-#    Updated: 2026/02/22 17:18:32 by jvalkama         ###   ########.fr        #
+#    Updated: 2026/04/08 16:00:00 by jvalkama         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
-NAME			:=
+NAME			:=convert
 
 SRCDIR			:=src
 VPATH			:=$(SRCDIR)
-SRCS			:=main.cpp
+SRCS			:=main.cpp ScalarConverter.cpp
 
 OBJDIR			:=obj
 OBJS			:=$(addprefix $(OBJDIR)/, $(SRCS:.cpp=.o))
 
-INC			:=inc
+INC				:=inc
 INCLUDES		:=-I $(INC)
-HEADER			:=$(INC)/
+HEADER			:=$(INC)/ScalarConverter.h
 
 COMPILER		:=c++
 CXXFLAGS		:=-Wall -Wextra -Werror -std=c++20
 
-RM			:=rm -f
+RM				:=rm -f
 
 
 all:			$(NAME)
