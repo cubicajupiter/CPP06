@@ -6,13 +6,13 @@
 /*   By: jvalkama <jvalkama@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/08 15:22:15 by jvalkama          #+#    #+#             */
-/*   Updated: 2026/04/08 15:59:57 by jvalkama         ###   ########.fr       */
+/*   Updated: 2026/04/10 10:54:46 by jvalkama         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <string>
 
-typedef s_conversions	t_conversions;
+typedef struct s_conversions	t_conversions;
 
 class ScalarConverter {
 	public:
