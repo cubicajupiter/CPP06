@@ -6,13 +6,18 @@
 /*   By: jvalkama <jvalkama@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/08 15:22:15 by jvalkama          #+#    #+#             */
-/*   Updated: 2026/04/10 10:54:46 by jvalkama         ###   ########.fr       */
+/*   Updated: 2026/04/12 15:48:47 by jvalkama         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <string>
+#include <cmath>
+#include <iostream>
+#include <optional>
+#include <cmath>
 
 typedef struct s_conversions	t_conversions;
+typedef enum e_type_spec		t_token;
 
 class ScalarConverter {
 	public:
@@ -25,8 +30,20 @@ class ScalarConverter {
 };
 
 struct	s_conversions {
-	char	c;
-	int		i;
-	float	f;
-	double	d;
+	std::optional<unsigned char>	c;
+	std::optional<int>				i;
+	std::optional<float>			f;
+	std::optional<double>			d;
+};
+
+//might benefit from a negative/positive specifier. but not strictly needed.
+enum e_type_spec {
+	T_NAN,
+	T_INF,
+	T_NINF,
+	CHAR,
+	INT,
+	FLOAT,
+	DOUBLE,
+	INVALID
 };
