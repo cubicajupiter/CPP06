@@ -6,23 +6,27 @@
 /*   By: jvalkama <jvalkama@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/08 15:21:59 by jvalkama          #+#    #+#             */
-/*   Updated: 2026/04/12 15:48:52 by jvalkama         ###   ########.fr       */
+/*   Updated: 2026/04/16 16:38:32 by jvalkama         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ScalarConverter.h"
 
-t_token		tokenizer(std::string& str);
+static void			int_input(t_conversions& conv, std::string& target);
+static void			float_input(t_conversions& conv, std::string& target);
+static void			double_input(t_conversions& conv, std::string& target);
+static t_token		tokenizer_parser(std::string& str);
 
 t_conversions		ScalarConverter::convert(std::string& target) {
 	t_conversions	conv;
 	t_token			input_type;
 
-	input_type = tokenizer(target);
-
+	conv.valid = true;
+	input_type = tokenizer_parser(target);
 	switch (input_type) {
 		case INVALID:
-			std::cout << "Please input a value of type char, int, float, double" << std::endl;
+			conv.valid = false;
+			std::cout << "The argument has to be a value of type char, int, float, or double!" << std::endl;
 			conv.c = std::nullopt;
 			conv.i = std::nullopt;
 			conv.f = std::nullopt;
@@ -47,35 +51,93 @@ t_conversions		ScalarConverter::convert(std::string& target) {
 			conv.d = -INFINITY;
 			break;
 		case CHAR:
-			conv.c = target[0];
+			conv.c = static_cast<unsigned char>(target[0]);
 			conv.i = static_cast<int>(target[0]);
 			conv.f = static_cast<float>(target[0]);
 			conv.d = static_cast<double>(target[0]);
 			break;
 		case INT:
-			conv.c = static_cast<unsigned char>(std::stoi(target));
-			conv.i = std::stoi(target);
-			conv.f = static_cast<float>(std::stoi(target));
-			conv.d = static_cast<double>(std::stoi(target));
+			int_input(conv, target);
 			break;
 		case FLOAT:
-			conv.c = static_cast<unsigned char>(std::stof(target));
-			conv.i = static_cast<int>(std::stof(target));
-			conv.f = std::stof(target);
-			conv.d = static_cast<double>(std::stof(target));
+			float_input(conv, target);
 			break;
 		case DOUBLE:
-			conv.c = static_cast<unsigned char>(std::stod(target));
-			conv.i = static_cast<int>(std::stod(target));
-			conv.f = static_cast<float>(std::stod(target));
-			conv.d = std::stod(target);
+			double_input(conv, target);
 			break;
 	}
-
 	return conv;
 }
 
-static t_token	tokenizer(std::string& str) {
+static void	int_input(t_conversions& conv, std::string& target) {
+	int		value;
+	
+	try {
+		value = std::stoi(target);
+	} catch (std::out_of_range& e) {
+		conv.c = std::nullopt;
+		conv.i = std::nullopt;
+		conv.f = std::nullopt;
+		conv.d = std::nullopt;
+		return ;
+	}
+	char_guarded_assign(conv, value);
+	conv.i = value;
+	float_guarded_assign(conv, value);
+	conv.d = static_cast<double>(value);
+}
+
+static void	float_input(t_conversions& conv, std::string& target) {
+	double		value;
+
+	try {
+		value = std::stod(target);
+	} catch (std::out_of_range& e) {
+		conv.c = std::nullopt;
+		conv.i = std::nullopt;
+		conv.f = std::nullopt;
+		conv.d = std::nullopt;
+		return ;
+	}
+	if (value > std::numeric_limits<float>::max() || value < std::numeric_limits<float>::lowest()) {
+		conv.c = std::nullopt;
+		conv.i = std::nullopt;
+		conv.f = std::nullopt;
+		conv.d = std::nullopt;
+		return ;
+	}
+	char_guarded_assign(conv, value);
+	int_guarded_assign(conv, value);
+	float_guarded_assign(conv, value);
+	conv.d = value;
+}
+
+static void	double_input(t_conversions& conv, std::string& target) {
+	long double		value;
+
+	try {
+		value = std::stold(target);
+	} catch (std::out_of_range& e) {
+		conv.c = std::nullopt;
+		conv.i = std::nullopt;
+		conv.f = std::nullopt;
+		conv.d = std::nullopt;
+		return ;		
+	}
+	if (value > std::numeric_limits<double>::max() || value < std::numeric_limits<double>::lowest()) {
+		conv.c = std::nullopt;
+		conv.i = std::nullopt;
+		conv.f = std::nullopt;
+		conv.d = std::nullopt;
+		return ;
+	}
+	char_guarded_assign(conv, value);
+	int_guarded_assign(conv, value);
+	float_guarded_assign(conv, value);
+	double_guarded_assign(conv, value);
+}
+
+static t_token	tokenizer_parser(std::string& str) {
 	std::string		specials[][2] = {{"nan", "nanf"}, {"+inf", "+inff"}, {"-inf", "-inff"}};
 	bool			has_digit = false;
 	bool			has_letter = false;
@@ -85,11 +147,21 @@ static t_token	tokenizer(std::string& str) {
 		if (str == specials[i][0] || str == specials[i][1])
 			return static_cast<t_token>(i);
 	}
-	if (str.length() == 1 && std::isalpha(str[0]))
+	if (str.length() == 1 && std::isprint(static_cast<unsigned char>(str[0])) && !std::isdigit(str[0]))
 		return CHAR;
-	for (char c : str) {
-		if (c == '.')
+	for (const char& c : str) {
+		if (c == '.') {
+			if (has_decimal == true)
+				return INVALID;
 			has_decimal = true;
+			continue;
+		}
+		if (!std::isalnum(c)) {
+			if ((&c - str.data()) == 0 && (c == '-' || c == '+')) {
+				continue;
+			}
+			return INVALID;
+		}
 		if (std::isdigit(c))
 			has_digit = true;
 		if (std::isalpha(c))

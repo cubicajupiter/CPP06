@@ -6,22 +6,22 @@
 #    By: jvalkama <jvalkama@student.hive.fi>        +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/11/18 12:06:00 by jvalkama          #+#    #+#              #
-#    Updated: 2026/02/22 17:18:32 by jvalkama         ###   ########.fr        #
+#    Updated: 2026/04/16 19:53:32 by jvalkama         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
-NAME			:=
+NAME			:=dynamic
 
 SRCDIR			:=src
 VPATH			:=$(SRCDIR)
-SRCS			:=main.cpp
+SRCS			:=main.cpp Base.cpp
 
 OBJDIR			:=obj
 OBJS			:=$(addprefix $(OBJDIR)/, $(SRCS:.cpp=.o))
 
 INC			:=inc
 INCLUDES		:=-I $(INC)
-HEADER			:=$(INC)/
+HEADER			:=$(INC)/A.h $(INC)/B.h $(INC)/C.h $(INC)/Base.h
 
 COMPILER		:=c++
 CXXFLAGS		:=-Wall -Wextra -Werror -std=c++20
